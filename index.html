@@ -1,1 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACCA Tube</title>
+<style>
+body{margin:0;font-family:Arial;background:#f1f1f1;}
+header{background:#cc0000;color:white;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;}
+button{cursor:pointer;}
+.auth-box{background:white;width:300px;margin:40px auto;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.auth-box input{width:100%;padding:8px;margin-bottom:10px;}
+.hidden{display:none;}
+.container{padding:15px;}
+.video-card{background:white;padding:10px;margin-bottom:10px;border-radius:8px;position:relative;}
+.delete-btn{position:absolute;top:10px;right:10px;background:red;color:white;border:none;padding:5px 8px;border-radius:5px;cursor:pointer;}
+.comment-box{margin-top:10px;background:#eee;padding:8px;border-radius:6px;}
+.comment-box input{width:80%;padding:5px;margin-right:5px;}
+.comment-box button{padding:5px;}
+.comment{background:#ddd;padding:5px;margin-bottom:5px;border-radius:5px;}
+</style>
+</head>
+<body>
 
+<header>
+<h2>📺 ACCA Tube</h2>
+<div id="userSection"></div>
+</header>
+
+<!-- Login -->
+<div id="authContainer" class="auth-box">
+<h3>Login</h3>
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
+<button onclick="login()">Login</button>
+</div>
+
+<!-- Upload (ADMIN ONLY) -->
+<div id="uploadBox" class="container hidden">
+<h3>Upload Video (Admin Only)</h3>
+<input type="file" id="videoFile">
+<input type="text" id="videoTitle" placeholder="Video title">
+<button onclick="uploadVideo()">Upload</button>
+<hr>
+</div>
+
+<!-- Video List -->
+<div class="container" id="videoList"></div>
+
+<script>
+// 🔥 ADMIN ACCOUNT
+const ADMIN_USERNAME = "accaadmin";
+const ADMIN_PASSWORD = "12345";
+
+let currentUser = JSON.parse(localStorage.getItem("accaCurrentUser"));
+let videos = JSON.parse(localStorage.getItem("accaVideos")) || [];
+
+function login(){
+  let username = document.getElementById("username").value;
+  let password = document.getElementById("password").value;
+  if(!username || !password){ alert("Fill all fields"); return; }
+
+  currentUser = {username,password};
+  localStorage.setItem("accaCurrentUser", JSON.stringify(currentUser));
+  loadApp();
+}
+
+function loadApp(){
+  if(!currentUser) return;
+
+  document.getElementById("authContainer").classList.add("hidden");
+  document.getElementById("userSection").innerHTML =
+    currentUser.username + ' <button onclick="logout()">Logout</button>';
+
+  if(currentUser.username === ADMIN_USERNAME && currentUser.password === ADMIN_PASSWORD){
+    document.getElementById("uploadBox").classList.remove("hidden");
+  }
+
+  renderVideos();
+}
+
+function logout(){
+  localStorage.removeItem("accaCurrentUser");
+  location.reload();
+}
+
+function uploadVideo(){
+  let file=document.getElementById("videoFile").files[0];
+  let title=document.getElementById("videoTitle").value;
+  if(!file || !title){ alert("Select video & enter title"); return; }
+
+  let url=URL.createObjectURL(file);
+  videos.push({title,url,views:0,likes:0,comments:[]});
+  localStorage.setItem("accaVideos", JSON.stringify(videos));
+  renderVideos();
+}
+
+function deleteVideo(index){
+  if(!confirm("Are you sure you want to delete this video?")) return;
+  videos.splice(index,1);
+  localStorage.setItem("accaVideos", JSON.stringify(videos));
+  renderVideos();
+}
+
+function likeVideo(index){
+  videos[index].likes++;
+  localStorage.setItem("accaVideos", JSON.stringify(videos));
+  renderVideos();
+}
+
+function addComment(index){
+  let name = currentUser.username;
+  let input = document.getElementById("commentInput"+index);
+  let text = input.value.trim();
+  if(!text){alert("Enter comment");return;}
+  videos[index].comments.push({name,text});
+  input.value="";
+  localStorage.setItem("accaVideos", JSON.stringify(videos));
+  renderVideos();
+}
+
+function incrementView(index){
+  videos[index].views++;
+  localStorage.setItem("accaVideos", JSON.stringify(videos));
+  renderVideos();
+}
+
+function renderVideos(){
+  let list=document.getElementById("videoList");
+  list.innerHTML="";
+  videos.forEach((v,i)=>{
+    let div=document.createElement("div");
+    div.className="video-card";
+    div.innerHTML=
+      `<h4>${v.title}</h4>
+       <video src="${v.url}" width="100%" controls onclick="incrementView(${i})"></video>
+       <p>Views: ${v.views} | Likes: ${v.likes} <button onclick="likeVideo(${i})">👍 Like</button></p>`;
+
+    // Only admin see delete
+    if(currentUser && currentUser.username===ADMIN_USERNAME && currentUser.password===ADMIN_PASSWORD){
+      let btn=document.createElement("button");
+      btn.className="delete-btn";
+      btn.innerText="Delete";
+      btn.onclick=()=>deleteVideo(i);
+      div.appendChild(btn);
+    }
+
+    // Comment Box
+    let commentDiv = document.createElement("div");
+    commentDiv.className="comment-box";
+    commentDiv.innerHTML=
+      `<input type="text" id="commentInput${i}" placeholder="Comment...">
+       <button onclick="addComment(${i})">Post</button>
+       <div id="commentsList${i}"></div>`;
+    div.appendChild(commentDiv);
+
+    // Render comments
+    let cList = commentDiv.querySelector("#commentsList"+i);
+    v.comments.forEach(c=>{
+      let cDiv=document.createElement("div");
+      cDiv.className="comment";
+      cDiv.innerHTML="<b>"+c.name+"</b>: "+c.text;
+      cList.appendChild(cDiv);
+    });
+
+    list.appendChild(div);
+  });
+}
+
+// Auto load
+if(currentUser) loadApp();
+renderVideos();
+
+</script>
+
+</body>
+</html>
