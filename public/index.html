@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HM Earn Pro - Premium Earning Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader-wrapper">
+            <div class="loader">
+                <div class="loader-inner"></div>
+            </div>
+            <div class="loader-text">Loading HM Earn Pro...</div>
+        </div>
+    </div>
+
+    <!-- Auth Pages -->
+    <div id="auth-container" class="auth-container">
+        <!-- Login -->
+        <div id="login-page" class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>HM Earn Pro</h1>
+                            <span>Premium Earning Platform</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Enter your password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('login-password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <span>Sign In</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div class="auth-divider">
+                    <span>or continue with</span>
+                </div>
+
+                <button class="btn-google" onclick="signInWithGoogle()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" onclick="showAuthPage('signup')">Create Account</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Signup -->
+        <div id="signup-page" class="auth-page hidden">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>HM Earn Pro</h1>
+                            <span>Join & Start Earning</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="signup-form" class="auth-form">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="signup-name" placeholder="Enter your full name" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="signup-email" placeholder="Enter your email" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                            <button type="button" class="toggle-password" onclick="togglePassword('signup-password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength" id="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="strength-fill"></div>
+                            </div>
+                            <span class="strength-text" id="strength-text">Password strength</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-confirm" placeholder="Confirm your password" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <span>Create Account</span>
+                        <i class="fas fa-user-plus"></i>
+                    </button>
+                </form>
+
+                <button class="btn-google" onclick="signInWithGoogle()">
+                    <svg class="google-icon" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="showAuthPage('login')">Sign In</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboard-container" class="dashboard-container hidden">
+        <!-- Top Navigation -->
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="logo-icon-small">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <span>HM Earn Pro</span>
+            </div>
+
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-page="home" onclick="showPage('home')">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-link" data-page="ads" onclick="showPage('ads')">
+                    <i class="fas fa-tv"></i>
+                    <span>Ads</span>
+                </a>
+                <a href="#" class="nav-link" data-page="surveys" onclick="showPage('surveys')">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Surveys</span>
+                </a>
+                <a href="#" class="nav-link" data-page="games" onclick="showPage('games')">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Games</span>
+                </a>
+                <a href="#" class="nav-link" data-page="withdraw" onclick="showPage('withdraw')">
+                    <i class="fas fa-wallet"></i>
+                    <span>Withdraw</span>
+                </a>
+            </div>
+
+            <div class="nav-actions">
+                <button class="btn-refresh" onclick="refreshData()" title="Refresh">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <div class="user-menu">
+                    <button class="user-btn" onclick="toggleUserMenu()">
+                        <div class="user-avatar" id="user-avatar">
+                            <span id="user-initial">U</span>
+                        </div>
+                        <span id="user-name">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="user-dropdown">
+                        <a href="#" onclick="showPage('profile')"><i class="fas fa-user"></i> Profile</a>
+                        <a href="#" onclick="showPage('history')"><i class="fas fa-history"></i> History</a>
+                        <a href="#" onclick="showPage('leaderboard')"><i class="fas fa-trophy"></i> Leaderboard</a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Home Page -->
+            <div id="page-home" class="page-content active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card balance-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Current Balance</span>
+                            <span class="stat-value" id="balance">AED 0.00</span>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon purple">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Total Earned</span>
+                            <span class="stat-value" id="total-earned">AED 0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon blue">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Tasks Completed</span>
+                            <span class="stat-value" id="total-tasks">0</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon orange">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Active Users</span>
+                            <span class="stat-value" id="active-users">1,234</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        Quick Actions
+                    </h2>
+                    <div class="quick-actions">
+                        <button class="action-card" onclick="showPage('ads')">
+                            <div class="action-icon blue">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <div class="action-info">
+                                <h3>Watch Ads</h3>
+                                <p>Up to AED 5.00 per ad</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </button>
+
+                        <button class="action-card" onclick="showPage('surveys')">
+                            <div class="action-icon purple">
+                                <i class="fas fa-clipboard-check"></i>
+                            </div>
+                            <div class="action-info">
+                                <h3>Complete Surveys</h3>
+                                <p>Up to AED 50.00 per survey</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </button>
+
+                        <button class="action-card" onclick="showPage('games')">
+                            <div class="action-icon orange">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <div class="action-info">
+                                <h3>Play & Earn</h3>
+                                <p>Up to AED 25.00 per game</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- How It Works -->
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-question-circle"></i>
+                        How It Works
+                    </h2>
+                    <div class="steps-grid">
+                        <div class="step-card">
+                            <div class="step-number">1</div>
+                            <div class="step-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h3>Create Account</h3>
+                            <p>Sign up for free and verify your identity</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">2</div>
+                            <div class="step-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <h3>Complete Tasks</h3>
+                            <p>Watch ads, take surveys, play games</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">3</div>
+                            <div class="step-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <h3>70% Earnings</h3>
+                            <p>Get 70% of all ad revenue you generate</p>
+                        </div>
+                        <div class="step-card">
+                            <div class="step-number">4</div>
+                            <div class="step-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h3>Withdraw</h3>
+                            <p>Cash out to bKash, Nagad, or Bank</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Info -->
+                <div class="section">
+                    <div class="revenue-banner">
+                        <div class="revenue-content">
+                            <h2><i class="fas fa-chart-line"></i> Real Earnings, Real Money</h2>
+                            <p>Every task you complete generates real ad revenue. You get <strong>70%</strong> of all earnings. We keep <strong>30%</strong> for platform maintenance and server costs.</p>
+                            <div class="revenue-split">
+                                <div class="split-item user">
+                                    <i class="fas fa-user"></i>
+                                    <span>You: 70%</span>
+                                </div>
+                                <div class="split-item admin">
+                                    <i class="fas fa-server"></i>
+                                    <span>Platform: 30%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ads Page -->
+            <div id="page-ads" class="page-content hidden">
+                <div class="page-header">
+                    <h1><i class="fas fa-tv"></i> Watch & Earn - Ads</h1>
+                    <p>Watch video ads and earn real money instantly</p>
+                </div>
+
+                <!-- Ad Network Integrations -->
+                <div class="ad-networks-container">
+                    <!-- Adstera Integration -->
+                    <div class="ad-network-section">
+                        <h3><i class="fas fa-ad"></i> Profitable CPM Network (Adstera)</h3>
+                        <div class="ad-container" id="adstera-ad-1">
+                            <iframe
+                                src="https://www.profitablecpmratenetwork.com/tbthcya2f?key=ab6ca63f3e3b2d1c2be174a750f82b56"
+                                width="728"
+                                height="90"
+                                frameborder="0"
+                                scrolling="no">
+                          
